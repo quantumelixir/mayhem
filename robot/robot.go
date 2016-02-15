@@ -1,96 +1,31 @@
 package robot
 
 import (
-	"fmt"
 	"strings"
 	"log"
+
+	"github.com/quantumelixir/mayhem/types"
 )
-
-// * Types: Color, Direction, Step, Selector
-// ** Color
-type Color int
-const (
-	None =  iota
-	Red
-	Green
-	Blue
-)
-var ColorMap = map[string]Color{
-	"": None,
-	"Red": Red,
-	"Green": Green,
-	"Blue": Blue,
-}
-
-// ** Direction
-type Direction int
-const (
-	Up = iota
-	Right
-	Down
-	Left
-)
-var DirectionMap = map[string]Direction{
-	"Up": Up,
-	"Right": Right,
-	"Down": Down,
-	"Left": Left,
-}
-
-// ** Step
-type Step int
-const (
-	MoveForward = iota
-	TurnRight
-	TurnLeft
-)
-var StepMap = map[string]Step{
-	"F": MoveForward,
-	"R": TurnRight,
-	"L": TurnLeft,
-}
-
-// ** Selector
-type Selector int
-const (
-	Stay = iota
-	Move
-	Jump
-	Paint
-)
-// * Statements and Functions
-type Function []Statement
-
-type Statement struct {
-
-	cond Color
-
-	which Selector
-	step Step
-	jump *Function
-	paint Color
-
-}
 
 // * Robot
 type Robot struct {
 	X, Y int
-	D Direction
-	FunctionMap map[string]*Function
+	D types.Direction
+	FunctionMap map[string]*types.Function
 }
 
 // ** Init
-func (r *Robot) Init(X int, Y int, D Direction) {
+func (r *Robot) Init(X int, Y int, direction string) {
 	r.X, r.Y = X, Y
-	r.D = D
-	r.FunctionMap = make(map[string]*Function)
+	r.D = types.DirectionMap[direction]
+	r.FunctionMap = make(map[string]*types.Function)
 }
 
 // ** DeclareFunctionList
 func (r *Robot) DeclareFunctionList(list []string) {
 	for _, s := range list {
 		if _, ok := r.FunctionMap[s]; !ok {
-			r.FunctionMap[s] = &Function{}
+			r.FunctionMap[s] = &types.Function{}
 		}
 	}
 }
@@ -115,216 +50,28 @@ func (r *Robot) DefineFunction(name string, parse []string) {
 	for _, s := range parse {
 		split := strings.Split(s, ":")
 
-		var t Statement
+		var t types.Statement
 
-		if v, ok := ColorMap[split[0]]; ok {
-			t.cond = v
+		if v, ok := types.ColorMap[split[0]]; ok {
+			t.Cond = v
 		} else {
-			t.cond = None
+			t.Cond = types.WildCard
 		}
 
 		// avoid function names that are colors to prevent
 		// confusion between the last two cases
 
-		if v, ok := StepMap[split[1]]; ok {
-			t.which = Move
-			t.step = v
+		if v, ok := types.MovementMap[split[1]]; ok {
+			t.Which = types.Step
+			t.Step = v
 		} else if v, ok := r.FunctionMap[split[1]]; ok {
-			t.which = Jump
-			t.jump = v
-		} else if v, ok := ColorMap[split[1]]; ok {
-			t.which = Paint
-			t.paint = v
+			t.Which = types.Jump
+			t.Jump = v
+		} else if v, ok := types.ColorMap[split[1]]; ok {
+			t.Which = types.Paint
+			t.Paint = v
 		}
 
 		*r.FunctionMap[name] = append(*r.FunctionMap[name], t)
 	}
-}
-
-// * The Runner
-
-// Run all the bots starting from the main function on the defined Board
-
-func Run(board [][]Color, main string, bots []Robot, say bool) {
-
-	// Rotation matrices for Up, Right, Down, Left
-	var R = [4][2][2]int{
-		[2][2]int{[2]int{1, 0}, [2]int{0, 1}},
-		[2][2]int{[2]int{0, -1}, [2]int{1, 0}},
-		[2][2]int{[2]int{-1, 0}, [2]int{0, -1}},
-		[2][2]int{[2]int{0, 1}, [2]int{-1, 0}},
-	}
-
-	// a single stack location
-	type Location struct {
-		f *Function
-		position int
-	}
-
-	stacks := make([][]Location, len(bots))
-
-	for i, r := range bots {
-		stacks[i] = []Location{{r.FunctionMap[main], 0}}
-	}
-
-	type Position struct {
-		X, Y int
-	}
-	PaintMap := make(map[Position]Color)
-
-	// holds the currently processing stack item for each bot
-	current := make([]Location, len(bots))
-
-	i := 0
-	someStackNotEmpty := true
-ExecutionLoop:
-	for { // every len(bots) iterations corresponds to one global tick
-
-		// stopping condition: when all bots halt
-		if i == len(bots) && !someStackNotEmpty {
-			break
-		}
-
-		if i == len(bots) {
-
-			i = 0
-			someStackNotEmpty = false
-			
-			// if say {
-			// 	fmt.Println("Tick!")
-			// }
-		}
-
-
-		if len(stacks[i]) == 0 && len(*(current[i].f)) == current[i].position {
-
-			// nothing left to do for the i-th bot
-
-			i++
-			continue
-		}
-		
-		someStackNotEmpty = true
-
-		if current[i].f == nil || len(*(current[i].f)) == current[i].position {
-			// pop the head of the i-th bot's stack
-			current[i] = stacks[i][len(stacks[i]) - 1]
-			stacks[i] = stacks[i][:len(stacks[i]) - 1]
-		}
-
-		// read a single statement from that location
-		v := (*(current[i].f))[current[i].position]
-
-		if !(v.cond == None || v.cond == board[bots[i].X][bots[i].Y]) {
-			// if say {
-			// 	fmt.Println(v.cond, current[i].position)
-			// 	fmt.Println(i, "|", "Unsatisfied condition")
-			// }
-
-			current[i].position++
-			i++
-			continue
-		}
-
-		switch v.which {
-
-		case Stay:
-			// do nothing
-			if say {
-				fmt.Println(i, "|", "Staying in place")
-			}
-
-		case Move:
-			switch v.step {
-
-			case MoveForward:
-				bots[i].X = bots[i].X + R[bots[i].D][0][0] * (-1) + R[bots[i].D][1][0] * (0)
-				bots[i].Y = bots[i].Y + R[bots[i].D][0][1] * (-1) + R[bots[i].D][1][1] * (0)
-				if say {
-					fmt.Printf("%d | Moving forward to (%d, %d)\n", i, bots[i].X, bots[i].Y)
-				}
-
-			case TurnRight:
-				bots[i].D = (bots[i].D + 1) % 4
-				if say {
-					var whichway string
-					for key, value := range DirectionMap {
-						if value == bots[i].D {
-							whichway = key
-							break
-						}
-					}
-					fmt.Println(i, "|", "Facing", whichway)
-				}
-
-			case TurnLeft:
-				bots[i].D = (bots[i].D + 3) % 4
-				if say {
-					var whichway string
-					for key, value := range DirectionMap {
-						if value == bots[i].D {
-							whichway = key
-							break
-						}
-					}
-					fmt.Println(i, "|", "Facing", whichway)
-				}
-			}
-
-		case Jump:
-			// save the current location (optimizing away tail calls)
-			if current[i].position + 1 < len(*(current[i].f)) {
-				stacks[i] = append(stacks[i],
-					Location{current[i].f, current[i].position + 1})
-			}
-			// jump to the new location
-			current[i] = Location{v.jump, 0}
-
-			continue
-
-			if say {
-				var whereto string
-				for key, value := range bots[i].FunctionMap {
-					if value == v.jump {
-						whereto = key
-						break
-					}
-				}
-				fmt.Println(i, "|", "Jumping to", whereto)
-			}
-
-		case Paint:
-			// don't make the updates immediately => check for race conditions
-			if _, ok := PaintMap[Position{bots[i].X, bots[i].Y}]; ok {
-				fmt.Println("ERROR: Painting same square twice in the same tick!")
-				break ExecutionLoop
-			} else {
-				PaintMap[Position{bots[i].X, bots[i].Y}] = v.paint
-			}
-
-			if say {
-				var color string
-				for key, value := range ColorMap {
-					if value == v.paint {
-						color = key
-						break
-					}
-				}
-				fmt.Println(i, "|", "Painting", color)
-			}
-
-		}
-
-		// run all the painting steps at the end of a global tick
-		if i + 1 == len(bots) {
-			for pos, color := range PaintMap {
-				board[pos.X][pos.Y] = color
-			}
-			// zero out the map after updating
-			PaintMap = make(map[Position]Color)
-		}
-
-		current[i].position++
-		i++
-	} // outer for
 }
