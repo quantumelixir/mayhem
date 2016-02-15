@@ -32,5 +32,5 @@ func main() {
 	fmt.Println(r.FunctionMap["F2"])
 
 	// run!
-	Run(board, "F1", []robot.Robot{r}, true)
+	Run(board, "F1", []*robot.Robot{&r}, true)
 }

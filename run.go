@@ -17,7 +17,7 @@ var R = [4][2][2]int{
 
 // * The Runner
 // Run all the bots starting from the main function on the defined Board
-func Run(board [][]types.Color, main string, bots []robot.Robot, say bool) {
+func Run(board [][]types.Color, main string, bots []*robot.Robot, say bool) {
 
 	// a single stack location
 	type Location struct {
