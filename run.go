@@ -180,6 +180,8 @@ ExecutionLoop:
 				fmt.Println(i, "|", "Painting", color)
 			}
 
+		case types.Return:
+			current[i].position = len(*(current[i].f)) - 1
 		}
 
 		// run all the painting steps at the end of a global tick

@@ -70,6 +70,8 @@ func (r *Robot) DefineFunction(name string, parse []string) {
 		} else if v, ok := types.ColorMap[split[1]]; ok {
 			t.Which = types.Paint
 			t.Paint = v
+		} else if split[1] == "Return" {
+			t.Which = types.Return
 		}
 
 		*r.FunctionMap[name] = append(*r.FunctionMap[name], t)

@@ -39,7 +39,7 @@ var MovementMap = map[string]Movement{
 // ** Action
 type Action int
 
-const Stay, Step, Jump, Paint Action = 0, 1, 2, 3
+const Stay, Step, Jump, Paint, Return Action = 0, 1, 2, 3, 4
 
 // * Statements and Functions
 type Function []Statement
