@@ -190,10 +190,11 @@ ExecutionLoop:
 			i = 0
 			someStackNotEmpty = false
 			
-			if say {
-				fmt.Println("Tick!")
-			}
+			// if say {
+			// 	fmt.Println("Tick!")
+			// }
 		}
+
 
 		if len(stacks[i]) == 0 && len(*(current[i].f)) == current[i].position {
 
@@ -205,7 +206,7 @@ ExecutionLoop:
 		
 		someStackNotEmpty = true
 
-		if current[i].f == nil {
+		if current[i].f == nil || len(*(current[i].f)) == current[i].position {
 			// pop the head of the i-th bot's stack
 			current[i] = stacks[i][len(stacks[i]) - 1]
 			stacks[i] = stacks[i][:len(stacks[i]) - 1]
@@ -214,12 +215,11 @@ ExecutionLoop:
 		// read a single statement from that location
 		v := (*(current[i].f))[current[i].position]
 
-		r := bots[i]
-
-		if !(v.cond == None || v.cond == board[r.X][r.Y]) {
-			if say {
-				fmt.Println(i, "|", "Unsatisfied condition")
-			}
+		if !(v.cond == None || v.cond == board[bots[i].X][bots[i].Y]) {
+			// if say {
+			// 	fmt.Println(v.cond, current[i].position)
+			// 	fmt.Println(i, "|", "Unsatisfied condition")
+			// }
 
 			current[i].position++
 			i++
@@ -238,18 +238,18 @@ ExecutionLoop:
 			switch v.step {
 
 			case MoveForward:
-				r.X = r.X + R[r.D][0][0] * (-1) + R[r.D][1][0] * (0)
-				r.Y = r.Y + R[r.D][0][1] * (-1) + R[r.D][1][1] * (0)
+				bots[i].X = bots[i].X + R[bots[i].D][0][0] * (-1) + R[bots[i].D][1][0] * (0)
+				bots[i].Y = bots[i].Y + R[bots[i].D][0][1] * (-1) + R[bots[i].D][1][1] * (0)
 				if say {
-					fmt.Printf("%d | Moving forward to (%d, %d)\n", i, r.X, r.Y)
+					fmt.Printf("%d | Moving forward to (%d, %d)\n", i, bots[i].X, bots[i].Y)
 				}
 
 			case TurnRight:
-				r.D = (r.D + 1) % 4
+				bots[i].D = (bots[i].D + 1) % 4
 				if say {
 					var whichway string
 					for key, value := range DirectionMap {
-						if value == r.D {
+						if value == bots[i].D {
 							whichway = key
 							break
 						}
@@ -258,11 +258,11 @@ ExecutionLoop:
 				}
 
 			case TurnLeft:
-				r.D = (r.D + 3) % 4
+				bots[i].D = (bots[i].D + 3) % 4
 				if say {
 					var whichway string
 					for key, value := range DirectionMap {
-						if value == r.D {
+						if value == bots[i].D {
 							whichway = key
 							break
 						}
@@ -280,9 +280,11 @@ ExecutionLoop:
 			// jump to the new location
 			current[i] = Location{v.jump, 0}
 
+			continue
+
 			if say {
 				var whereto string
-				for key, value := range r.FunctionMap {
+				for key, value := range bots[i].FunctionMap {
 					if value == v.jump {
 						whereto = key
 						break
@@ -293,11 +295,11 @@ ExecutionLoop:
 
 		case Paint:
 			// don't make the updates immediately => check for race conditions
-			if _, ok := PaintMap[Position{r.X, r.Y}]; ok {
+			if _, ok := PaintMap[Position{bots[i].X, bots[i].Y}]; ok {
 				fmt.Println("ERROR: Painting same square twice in the same tick!")
 				break ExecutionLoop
 			} else {
-				PaintMap[Position{r.X, r.Y}] = v.paint
+				PaintMap[Position{bots[i].X, bots[i].Y}] = v.paint
 			}
 
 			if say {
