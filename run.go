@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/quantumelixir/mayhem/types"
 	"github.com/quantumelixir/mayhem/robot"
+	"github.com/quantumelixir/mayhem/types"
 )
 
 // Rotation matrices for Up, Right, Down, Left
 var R = [4][2][2]int{
-	[2][2]int{[2]int{1, 0}, [2]int{0, 1}},
-	[2][2]int{[2]int{0, -1}, [2]int{1, 0}},
-	[2][2]int{[2]int{-1, 0}, [2]int{0, -1}},
-	[2][2]int{[2]int{0, 1}, [2]int{-1, 0}},
+	{{1, 0}, {0, 1}},
+	{{0, -1}, {1, 0}},
+	{{-1, 0}, {0, -1}},
+	{{0, 1}, {-1, 0}},
 }
 
 // * The Runner
@@ -21,7 +21,7 @@ func Run(board [][]types.Color, main string, bots []robot.Robot, say bool) {
 
 	// a single stack location
 	type Location struct {
-		f *types.Function
+		f        *types.Function
 		position int
 	}
 
@@ -53,7 +53,7 @@ ExecutionLoop:
 
 			i = 0
 			someStackNotEmpty = false
-			
+
 			// if say {
 			// 	fmt.Println("Tick!")
 			// }
@@ -67,13 +67,13 @@ ExecutionLoop:
 			i++
 			continue
 		}
-		
+
 		someStackNotEmpty = true
 
 		if current[i].f == nil || len(*(current[i].f)) == current[i].position {
 			// pop the head of the i-th bot's stack
-			current[i] = stacks[i][len(stacks[i]) - 1]
-			stacks[i] = stacks[i][:len(stacks[i]) - 1]
+			current[i] = stacks[i][len(stacks[i])-1]
+			stacks[i] = stacks[i][:len(stacks[i])-1]
 		}
 
 		// read a single statement from that location
@@ -104,8 +104,8 @@ ExecutionLoop:
 			switch v.Step {
 
 			case types.MoveForward:
-				bots[i].X = bots[i].X + R[bots[i].D][0][0] * (-1) + R[bots[i].D][1][0] * (0)
-				bots[i].Y = bots[i].Y + R[bots[i].D][0][1] * (-1) + R[bots[i].D][1][1] * (0)
+				bots[i].X = bots[i].X + R[bots[i].D][0][0]*(-1) + R[bots[i].D][1][0]*(0)
+				bots[i].Y = bots[i].Y + R[bots[i].D][0][1]*(-1) + R[bots[i].D][1][1]*(0)
 				if say {
 					fmt.Printf("%d | Moving Forward to (%d, %d)\n", i, bots[i].X, bots[i].Y)
 				}
@@ -140,7 +140,7 @@ ExecutionLoop:
 		case types.Jump:
 
 			// save the current location (optimizing away tail calls)
-			if current[i].position + 1 < len(*(current[i].f)) {
+			if current[i].position+1 < len(*(current[i].f)) {
 				stacks[i] = append(stacks[i],
 					Location{current[i].f, current[i].position + 1})
 			}
@@ -183,7 +183,7 @@ ExecutionLoop:
 		}
 
 		// run all the painting steps at the end of a global tick
-		if i + 1 == len(bots) {
+		if i+1 == len(bots) {
 			for pos, color := range PaintMap {
 				board[pos.X][pos.Y] = color
 			}

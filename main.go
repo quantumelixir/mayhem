@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/quantumelixir/mayhem/types"
 	"github.com/quantumelixir/mayhem/board"
 	"github.com/quantumelixir/mayhem/robot"
+	"github.com/quantumelixir/mayhem/types"
 )
 
 // * Main

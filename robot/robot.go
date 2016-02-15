@@ -1,16 +1,16 @@
 package robot
 
 import (
-	"strings"
 	"log"
+	"strings"
 
 	"github.com/quantumelixir/mayhem/types"
 )
 
 // * Robot
 type Robot struct {
-	X, Y int
-	D types.Direction
+	X, Y        int
+	D           types.Direction
 	FunctionMap map[string]*types.Function
 }
 
