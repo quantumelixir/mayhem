@@ -1,0 +1,24 @@
+* Mayhem: Attack of the Clones!!!
+
+Putting the first stable version out there.
+
+Currently the source file organization is a mess (only
+slightly). Ideally I should split off the Runner function from
+github.com/quantumelixir/mayhem/robot but that would deluge the source
+file with namespaces.
+
+Nevertheless I think it's in a readable state.
+
+** WHAT IS THIS?
+
+Short answer: [[http://www.robozzle.com][Robozzle]] with clones!
+
+** AWESOME! How do I try it?
+
+$ go get github.com/quantumelixir/mayhem
+$ go install github.com/quantumelixir/mayhem
+
+$ ... edit main.go to input your configuration ... (there is some help
+here to define functions) 
+
+$ mayhem
