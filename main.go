@@ -29,5 +29,8 @@ func main() {
 	fmt.Println(r.FunctionList[r.FunctionIndex("F2")])
 
 	// run!
-	Run(board, "F1", []*Robot{&r}, true)
+	Run(board, "F1", []*Robot{&r})
+
+	// print the final destatination
+	fmt.Println(r.X, r.Y, r.D)
 }
