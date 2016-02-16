@@ -65,8 +65,8 @@ func (r *Robot) DeclareFunctionList(list []string) {
 // Color and Y can be one of the following:
 // - a Step (F/L/R),
 // - the name of a Function, or
-// - a Color (in which case it is interpreted as a painting move).
-
+// - a Color (in which case it is interpreted as a painting move), or
+// - the string "Return"
 func (r *Robot) DefineFunction(name string, parse []string) {
 
 	index, length := r.FunctionIndex(name), len(r.FunctionList)

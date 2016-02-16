@@ -2,35 +2,52 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"io/ioutil"
+	"encoding/json"
+
+	"github.com/codegangsta/cli"
 )
+
+type Level struct{
+	Board [][]Color
+	Bots []Robot
+	Main string
+}
+
+func (l Level) Marshal() ([]byte, error) {
+	return json.MarshalIndent(l, "", "\t")
+}
 
 // * Main
 func main() {
 
-	var r Robot
+	var filename string
 
-	// making a 12 x 16 board
-	board := NewBoard(12, 16, Blue)
-	board[0][0] = Red
-	board[4][11] = Green
-	board[11][15] = Red
-	board[5][8] = Green
-	board[2][2] = Red
-	board[2][5] = Red
+	app := cli.NewApp()
+	app.Name = "mayhem"
+	app.Usage = "the attack of the clones !!!"
+	app.Version = "0.1"
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "load-spec-from-file, l",
+			Value: "",
+			Usage: "load spec from file",
+			Destination: &filename,
+		},
+	}
 
-	// program the robot
-	r.Init(11, 0, "U")
-	r.DeclareFunctionList([]string{"F1", "F2"})
-	r.DefineFunction("F1", []string{":F2", ":R", "Blue:F1"})
-	r.DefineFunction("F2", []string{":F", "Red:R", "Green:L", "Blue:F2", ":F"})
+	app.Action = func(c *cli.Context) {
+		b, err := ioutil.ReadFile(filename)
+		if err != nil {
+			fmt.Println("error:", err)
+		} else {
+			var l Level
+			json.Unmarshal(b, &l)
+			Run(l.Board, l.Main, l.Bots)
+			fmt.Println(l.Bots[0].X, l.Bots[0].Y, l.Bots[0].D)
+		}
+	}		
 
-	// check the function specification
-	fmt.Println(r.FunctionList[r.FunctionIndex("F1")])
-	fmt.Println(r.FunctionList[r.FunctionIndex("F2")])
-
-	// run!
-	Run(board, "F1", []*Robot{&r})
-
-	// print the final destatination
-	fmt.Println(r.X, r.Y, r.D)
+	app.Run(os.Args)
 }

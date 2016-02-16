@@ -2,7 +2,7 @@ package main
 
 // * Types: Color, Direction, Movement, Action
 // ** Color
-type Color byte
+type Color int
 
 const WildCard, Red, Green, Blue, Invalid Color = 0, 1, 2, 3, 4
 
@@ -14,7 +14,7 @@ var ColorMap = map[string]Color{
 }
 
 // ** Direction
-type Direction byte
+type Direction int
 
 const Up, Right, Down, Left Direction = 0, 1, 2, 3
 
@@ -26,7 +26,7 @@ var DirectionMap = map[string]Direction{
 }
 
 // ** Movement
-type Movement byte
+type Movement int
 
 const MoveForward, TurnRight, TurnLeft Movement = 0, 1, 2
 
@@ -37,7 +37,7 @@ var MovementMap = map[string]Movement{
 }
 
 // ** Action
-type Action byte
+type Action int
 
 const Stay, Step, Jump, Paint, Return Action = 0, 1, 2, 3, 4
 

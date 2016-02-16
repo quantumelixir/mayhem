@@ -12,7 +12,7 @@ var R = [4][2][2]int{
 
 // * The Runner
 // Run all the bots starting from the main function on the defined Board
-func Run(board [][]Color, main string, bots []*Robot) {
+func Run(board [][]Color, main string, bots []Robot) {
 
 	// a single stack location
 	type Location struct {
@@ -61,8 +61,8 @@ ExecutionLoop:
 
 		if len(bots[i].FunctionList[current[i].ifun]) == current[i].ipos {
 			// pop the head of the i-th bot's stack
-			current[i] = stacks[i][len(stacks[i])-1]
-			stacks[i] = stacks[i][:len(stacks[i])-1]
+			current[i] = stacks[i][len(stacks[i]) - 1]
+			stacks[i] = stacks[i][:len(stacks[i]) - 1]
 		}
 
 		f := bots[i].FunctionList[current[i].ifun]
@@ -121,7 +121,7 @@ ExecutionLoop:
 		}
 
 		// run all the painting steps at the end of a global tick
-		if i+1 == len(bots) {
+		if i + 1 == len(bots) {
 			for pos, color := range PaintMap {
 				board[pos.X][pos.Y] = color
 			}
