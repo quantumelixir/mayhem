@@ -1,10 +1,10 @@
-package types
+package main
 
 // * Types: Color, Direction, Movement, Action
 // ** Color
-type Color int
+type Color byte
 
-const WildCard, Red, Green, Blue Color = 0, 1, 2, 3
+const WildCard, Red, Green, Blue, Invalid Color = 0, 1, 2, 3, 4
 
 var ColorMap = map[string]Color{
 	"":      WildCard,
@@ -14,7 +14,7 @@ var ColorMap = map[string]Color{
 }
 
 // ** Direction
-type Direction int
+type Direction byte
 
 const Up, Right, Down, Left Direction = 0, 1, 2, 3
 
@@ -26,7 +26,7 @@ var DirectionMap = map[string]Direction{
 }
 
 // ** Movement
-type Movement int
+type Movement byte
 
 const MoveForward, TurnRight, TurnLeft Movement = 0, 1, 2
 
@@ -37,7 +37,7 @@ var MovementMap = map[string]Movement{
 }
 
 // ** Action
-type Action int
+type Action byte
 
 const Stay, Step, Jump, Paint, Return Action = 0, 1, 2, 3, 4
 
@@ -49,6 +49,6 @@ type Statement struct {
 
 	Which Action
 	Step  Movement
-	Jump  *Function
+	Jump  int // index of the Function to jump to
 	Paint Color
 }
