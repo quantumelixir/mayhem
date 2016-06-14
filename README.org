@@ -18,7 +18,7 @@ Short answer: [[http://www.robozzle.com][Robozzle]] with clones!
 $ go get github.com/quantumelixir/mayhem
 $ go install github.com/quantumelixir/mayhem
 
-$ ... edit main.go to input your configuration ... (there is some help
-here to define functions) 
+$ ... edit level.spec to input your configuration ... (there is some
+help here to define functions)
 
-$ mayhem
+$ mayhem level.spec

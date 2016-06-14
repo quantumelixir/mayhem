@@ -22,31 +22,26 @@ func (l Level) Marshal() ([]byte, error) {
 // * Main
 func main() {
 
-	var filename string
-
 	app := cli.NewApp()
 	app.Name = "mayhem"
 	app.Usage = "the attack of the clones !!!"
 	app.Version = "0.1"
-	app.Flags = []cli.Flag {
-		cli.StringFlag{
-			Name: "load-spec-from-file, l",
-			Value: "",
-			Usage: "load spec from file",
-			Destination: &filename,
-		},
-	}
 
-	app.Action = func(c *cli.Context) {
-		b, err := ioutil.ReadFile(filename)
+	app.Action = func(c *cli.Context) error {
+		if c.NArg() == 0 {
+			fmt.Println("specify a level spec file")
+			return nil
+		}
+		b, err := ioutil.ReadFile(c.Args().Get(0))
 		if err != nil {
-			fmt.Println("error:", err)
+			fmt.Println(err)
 		} else {
 			var l Level
 			json.Unmarshal(b, &l)
 			Run(l.Board, l.Main, l.Bots)
 			fmt.Println(l.Bots[0].X, l.Bots[0].Y, l.Bots[0].D)
 		}
+		return err
 	}		
 
 	app.Run(os.Args)
